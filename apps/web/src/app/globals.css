@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background: linear-gradient(135deg, #F3E9FC 0%, #FCEAF1 45%, #FFF4EA 100%);
+    background-attachment: fixed;
+    color: #150F2E;
+  }
+  * { box-sizing: border-box; }
+  input, button, select, textarea { font-family: inherit; }
+}
+
+@media (max-width: 640px) {
+  .search-btn-wrap {
+    border-top: 1px solid rgba(21,15,46,0.1) !important;
+  }
+}
+
+@media (min-width: 641px) {
+  .search-btn-wrap {
+    width: auto !important;
+    border-top: none !important;
+  }
+}
+
+input::placeholder {
+  color: rgba(21,15,46,0.35) !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.3);
+  cursor: pointer;
+}
+
+/* Brand-colored focus ring instead of the browser's default blue */
+:focus-visible {
+  outline: 2px solid #7C3AED;
+  outline-offset: 2px;
+}
