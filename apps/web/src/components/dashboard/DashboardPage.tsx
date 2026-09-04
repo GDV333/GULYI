@@ -393,16 +393,16 @@ export function DashboardPage() {
                 Отменить заявку
               </button>
             )}
-            {selectedBooking.status!=='pending'&&selectedBooking.status!=='cancelled'&&(
-              <Link href={selectedBooking.eventId?`/events/${selectedBooking.eventId}`:`/messages?booking=${selectedBooking.id}`}
+            {selectedBooking.status!=='cancelled'&&selectedBooking.status!=='refunded'&&(
+              <Link href={`/messages?booking=${selectedBooking.id}`}
                 style={{display:'block',width:'100%',marginTop:12,padding:'12px',borderRadius:14,fontSize:14,fontWeight:700,background:ACCENT,color:'#FFFFFF',border:'none',cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}>
-                💬 Открыть чат
+                💬 {user.role==='vendor'?'Написать заказчику':'Написать исполнителю'}
               </Link>
             )}
             {selectedBooking.eventId&&(
               <Link href={`/events/${selectedBooking.eventId}`}
                 style={{display:'block',width:'100%',marginTop:10,padding:'11px',borderRadius:14,fontSize:13,fontWeight:600,background:'transparent',border:`1px solid ${BORDER}`,color:MUTED,cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}>
-                🎪 Перейти к мероприятию
+                🎪 Общий чат мероприятия
               </Link>
             )}
             {['cancelled','completed','refunded'].includes(selectedBooking.status)&&(

@@ -58,13 +58,31 @@ export function MessagesPage() {
 
     apiFetch('/api/chat')
       .then(r => r.json())
-      .then(data => {
+      .then(async data => {
         const list = Array.isArray(data) ? data : []
-        setConversations(list)
         const bookingParam = searchParams.get('booking')
-        if (bookingParam) {
-          const match = list.find((c: ConversationListItem) => c.bookingId === bookingParam)
-          if (match) setActiveId(match.id)
+        const match = bookingParam && list.find((c: ConversationListItem) => c.bookingId === bookingParam)
+        if (match) {
+          setConversations(list)
+          setActiveId(match.id)
+        } else if (bookingParam) {
+          // диалога по этой брони ещё нет — создаём и открываем
+          try {
+            const res = await apiFetch(`/api/chat/booking/${bookingParam}`, { method: 'POST' })
+            const conv = res.ok ? await res.json() : null
+            if (conv?.id) {
+              setConversations([conv, ...list])
+              setActiveId(conv.id)
+            } else {
+              setConversations(list)
+              setError(conv?.error ? String(conv.error) : 'Не удалось открыть диалог')
+            }
+          } catch {
+            setConversations(list)
+            setError('Не удалось открыть диалог')
+          }
+        } else {
+          setConversations(list)
         }
       })
       .catch(() => setError('Не удалось загрузить диалоги'))
@@ -136,7 +154,7 @@ export function MessagesPage() {
               ) : conversations.length === 0 ? (
                 <div style={{ padding: 20, textAlign: 'center' }}>
                   <p style={{ fontSize: 28, marginBottom: 8 }}>💬</p>
-                  <p style={{ color: MUTED, fontSize: 13 }}>Диалоги появляются автоматически после подтверждения брони</p>
+                  <p style={{ color: MUTED, fontSize: 13 }}>Здесь личная переписка с заказчиками и исполнителями. Откройте бронь и нажмите «Написать».</p>
                 </div>
               ) : conversations.map(conv => {
                 if (!myId) return null

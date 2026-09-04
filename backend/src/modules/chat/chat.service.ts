@@ -1,6 +1,6 @@
 import { eq, or, and, ne, isNull, inArray, asc, desc, count } from 'drizzle-orm'
 import { db } from '../../db'
-import { conversations, messages } from '../../db/schema'
+import { conversations, messages, bookings } from '../../db/schema'
 
 export class ChatService {
   // Список диалогов пользователя — и как клиента, и как исполнителя, с числом непрочитанных
@@ -39,6 +39,46 @@ export class ChatService {
     })
     if (!conv || (conv.clientId !== userId && conv.vendorId !== userId)) return null
     return conv
+  }
+
+  // Открыть (или создать) личный диалог заказчик ↔ исполнитель по конкретной брони.
+  // Идемпотентно: уникальный индекс на booking_id не даст создать второй диалог.
+  async ensureForBooking(bookingId: string, userId: string) {
+    const booking = await db.query.bookings.findFirst({
+      where: eq(bookings.id, bookingId),
+      with: { profile: { columns: { userId: true } } },
+    })
+    if (!booking) throw new Error('Бронь не найдена')
+    const vendorUserId = booking.profile?.userId
+    if (!vendorUserId) throw new Error('Бронь не найдена')
+    if (booking.clientId !== userId && vendorUserId !== userId) throw new Error('Нет доступа к этой брони')
+    if (booking.status === 'cancelled' || booking.status === 'refunded') throw new Error('Бронь отменена')
+
+    let conv = await db.query.conversations.findFirst({ where: eq(conversations.bookingId, bookingId) })
+    if (!conv) {
+      const [created] = await db.insert(conversations)
+        .values({ bookingId, clientId: booking.clientId, vendorId: vendorUserId })
+        .onConflictDoNothing()
+        .returning()
+      conv = created ?? await db.query.conversations.findFirst({ where: eq(conversations.bookingId, bookingId) })
+    }
+    if (!conv) throw new Error('Не удалось открыть диалог')
+
+    return this.hydrate(conv.id)
+  }
+
+  // Диалог в том же виде, что и элементы списка (собеседники, последнее сообщение)
+  private async hydrate(conversationId: string) {
+    const conv = await db.query.conversations.findFirst({
+      where: eq(conversations.id, conversationId),
+      with: {
+        booking: { columns: { id: true, eventDate: true, eventType: true, status: true } },
+        client:  { columns: { id: true, email: true }, with: { profile: { columns: { displayName: true, avatarUrl: true } } } },
+        vendor:  { columns: { id: true, email: true }, with: { profile: { columns: { displayName: true, avatarUrl: true } } } },
+        messages: { orderBy: [desc(messages.createdAt)], limit: 1 },
+      },
+    })
+    return conv ? { ...conv, unreadCount: 0 } : null
   }
 
   private async assertParticipant(conversationId: string, userId: string) {

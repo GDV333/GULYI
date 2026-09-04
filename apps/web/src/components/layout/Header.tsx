@@ -73,6 +73,9 @@ export function Header() {
                 <Link href="/events" className="desktop-nav" style={{ color: 'rgba(21,15,46,0.55)', fontSize: 14, textDecoration: 'none' }}>
                   Мероприятия
                 </Link>
+                <Link href="/messages" className="desktop-nav" style={{ color: 'rgba(21,15,46,0.55)', fontSize: 14, textDecoration: 'none' }}>
+                  Сообщения
+                </Link>
                 {user.role === 'admin' && (
                   <Link href="/admin/stats" className="desktop-nav" style={{ color: '#7C3AED', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                     Админка
@@ -117,6 +120,10 @@ export function Header() {
                 <Link href="/events" onClick={() => setMenuOpen(false)}
                   style={{ display: 'block', color: 'rgba(21,15,46,0.7)', fontSize: 16, textDecoration: 'none', padding: '12px 0' }}>
                   Мероприятия
+                </Link>
+                <Link href="/messages" onClick={() => setMenuOpen(false)}
+                  style={{ display: 'block', color: 'rgba(21,15,46,0.7)', fontSize: 16, textDecoration: 'none', padding: '12px 0' }}>
+                  Сообщения
                 </Link>
                 {user.role === 'admin' && (
                   <Link href="/admin/stats" onClick={() => setMenuOpen(false)}

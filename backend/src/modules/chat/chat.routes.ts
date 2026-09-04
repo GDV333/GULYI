@@ -16,13 +16,25 @@ export async function chatRoutes(app: FastifyInstance) {
     reply.send(list)
   })
 
-  // GET /api/chat/by-booking/:bookingId — найти диалог по id брони (кнопка «Открыть чат»)
+  // GET /api/chat/by-booking/:bookingId — найти диалог по id брони
   app.get('/by-booking/:bookingId', async (request, reply) => {
     const { id } = request.user as { id: string }
     const { bookingId } = request.params as { bookingId: string }
     const conv = await svc.findByBookingId(id, bookingId)
-    if (!conv) return reply.status(404).send({ error: 'Диалог появится после подтверждения брони' })
+    if (!conv) return reply.status(404).send({ error: 'Диалог ещё не создан' })
     reply.send(conv)
+  })
+
+  // POST /api/chat/booking/:bookingId — открыть (создать при необходимости) личный диалог по брони
+  app.post('/booking/:bookingId', async (request, reply) => {
+    const { id } = request.user as { id: string }
+    const { bookingId } = request.params as { bookingId: string }
+    try {
+      const conv = await svc.ensureForBooking(bookingId, id)
+      reply.send(conv)
+    } catch (err: any) {
+      reply.status(400).send({ error: err.message })
+    }
   })
 
   // GET /api/chat/:id/messages

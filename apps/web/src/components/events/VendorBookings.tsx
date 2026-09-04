@@ -214,10 +214,16 @@ export function VendorBookings() {
                 </button>
               </div>
             )}
+            {selected.status !== 'cancelled' && selected.status !== 'refunded' && (
+              <Link href={`/messages?booking=${selected.id}`}
+                style={{ display: 'block', width: '100%', marginTop: 12, padding: 12, borderRadius: 14, fontSize: 14, fontWeight: 700, background: ACCENT, color: '#FFFFFF', textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
+                💬 Написать заказчику
+              </Link>
+            )}
             {selected.eventId && (
               <Link href={`/events/${selected.eventId}`}
-                style={{ display: 'block', width: '100%', marginTop: 12, padding: 12, borderRadius: 14, fontSize: 14, fontWeight: 700, background: ACCENT, color: '#FFFFFF', textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
-                🎪 Открыть мероприятие
+                style={{ display: 'block', width: '100%', marginTop: 10, padding: 11, borderRadius: 14, fontSize: 13, fontWeight: 600, background: 'transparent', border: `1px solid ${BORDER}`, color: MUTED, textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
+                🎪 Общий чат мероприятия
               </Link>
             )}
             {['cancelled', 'completed', 'refunded'].includes(selected.status) && (

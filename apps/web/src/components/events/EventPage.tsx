@@ -311,9 +311,14 @@ export function EventPage({ id }: { id: string }) {
                           {roleBookings.map(b => {
                             const s = BOOKING_STATUS[b.status] || BOOKING_STATUS.pending
                             return (
-                              <div key={b.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: MUTED }}>
+                              <div key={b.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, fontSize: 12, color: MUTED }}>
                                 <span>{b.profile.displayName}</span>
-                                <span style={{ fontWeight: 700, padding: '2px 8px', borderRadius: 50, background: s.bg, color: s.color }}>{s.label}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  {isOwner && b.status !== 'cancelled' && (
+                                    <Link href={`/messages?booking=${b.id}`} style={{ color: ACCENT, fontWeight: 600, textDecoration: 'none' }}>написать</Link>
+                                  )}
+                                  <span style={{ fontWeight: 700, padding: '2px 8px', borderRadius: 50, background: s.bg, color: s.color }}>{s.label}</span>
+                                </span>
                               </div>
                             )
                           })}
