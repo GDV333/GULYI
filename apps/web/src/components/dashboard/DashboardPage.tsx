@@ -429,7 +429,7 @@ export function DashboardPage() {
               <div style={{minWidth:0}}>
                 <h1 style={{fontWeight:800,fontSize:'clamp(18px,3vw,24px)',color:TEXT,letterSpacing:'-0.02em',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user.name}</h1>
                 <p style={{color:MUTED,fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                  {primaryCat?`${primaryCat.icon||''} ${primaryCat.name}`:user.role==='vendor'?'🎤 Исполнитель':'🎉 Организатор'}
+                  {primaryCat?`${primaryCat.icon||''} ${primaryCat.name}`:user.role==='vendor'?'🎤 Исполнитель':'🎉 Заказчик'}
                   {' · '}{user.email}
                 </p>
               </div>
@@ -885,7 +885,7 @@ export function DashboardPage() {
                 )}
                 <div>
                   <Label>Роль</Label>
-                  <div style={{...inp,color:TEXT}}>{primaryCat?`${primaryCat.icon||''} ${primaryCat.name}`:user.role==='vendor'?'🎤 Исполнитель':'🎉 Организатор'}</div>
+                  <div style={{...inp,color:TEXT}}>{primaryCat?`${primaryCat.icon||''} ${primaryCat.name}`:user.role==='vendor'?'🎤 Исполнитель':'🎉 Заказчик'}</div>
                 </div>
                 {editingAccount&&(
                   <>

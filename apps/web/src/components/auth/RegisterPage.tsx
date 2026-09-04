@@ -208,7 +208,7 @@ export function RegisterPage() {
               {/* Роль */}
               <div className="flex gap-2 p-1 bg-[#F5F0E8] rounded-xl">
                 {[
-                  { value: 'client', label: '🎉 Организатор' },
+                  { value: 'client', label: '🎉 Заказчик' },
                   { value: 'vendor', label: '🎤 Исполнитель' },
                 ].map(r => (
                   <button
