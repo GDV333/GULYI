@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const TABS = [
+  { href: '/admin/stats',   label: 'Статистика' },
   { href: '/admin/users',   label: 'Пользователи' },
   { href: '/admin/reviews', label: 'Модерация отзывов' },
 ]

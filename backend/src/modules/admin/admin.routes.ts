@@ -16,6 +16,9 @@ export async function adminRoutes(app: FastifyInstance) {
   // GET /api/admin/users — полный список зарегистрированных пользователей
   app.get('/users', async () => svc.listUsers())
 
-  // GET /api/admin/stats — сводка по ролям
+  // GET /api/admin/stats — короткая сводка по ролям
   app.get('/stats', async () => svc.stats())
+
+  // GET /api/admin/overview — развёрнутая статистика для дашборда
+  app.get('/overview', async () => svc.overview())
 }

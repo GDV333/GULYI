@@ -74,7 +74,7 @@ export function Header() {
                   Мероприятия
                 </Link>
                 {user.role === 'admin' && (
-                  <Link href="/admin/users" className="desktop-nav" style={{ color: '#7C3AED', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                  <Link href="/admin/stats" className="desktop-nav" style={{ color: '#7C3AED', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                     Админка
                   </Link>
                 )}
@@ -119,7 +119,7 @@ export function Header() {
                   Мероприятия
                 </Link>
                 {user.role === 'admin' && (
-                  <Link href="/admin/users" onClick={() => setMenuOpen(false)}
+                  <Link href="/admin/stats" onClick={() => setMenuOpen(false)}
                     style={{ display: 'block', color: '#7C3AED', fontSize: 16, fontWeight: 600, textDecoration: 'none', padding: '12px 0' }}>
                     Админка
                   </Link>

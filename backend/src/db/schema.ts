@@ -241,6 +241,19 @@ export const eventMessages = pgTable('event_messages', {
   convIdx: index('event_messages_conversation_idx').on(t.conversationId),
 }))
 
+// ─── Аналитика посещений ─────────────────────────────────────────────────────
+// Лёгкий трекинг для админ-статистики: без IP и фингерпринтов, только
+// случайный sessionId из localStorage + путь + домен-реферер.
+export const siteVisits = pgTable('site_visits', {
+  id:        uuid('id').primaryKey().defaultRandom(),
+  sessionId: varchar('session_id', { length: 48 }),
+  path:      varchar('path', { length: 200 }).notNull(),
+  referrer:  varchar('referrer', { length: 120 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({
+  createdIdx: index('site_visits_created_idx').on(t.createdAt),
+}))
+
 // ─── Bookings ─────────────────────────────────────────────────────────────────
 
 export const bookings = pgTable('bookings', {

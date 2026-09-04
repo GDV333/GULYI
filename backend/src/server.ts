@@ -16,6 +16,7 @@ import { favoriteRoutes } from './modules/favorites/favorite.routes'
 import { chatRoutes }     from './modules/chat/chat.routes'
 import { eventRoutes }    from './modules/events/event.routes'
 import { adminRoutes }    from './modules/admin/admin.routes'
+import { metricsRoutes }  from './modules/metrics/metrics.routes'
 
 // Создаём папки для загрузок
 try { mkdirSync('./uploads/avatars',   { recursive: true }) } catch {}
@@ -71,6 +72,7 @@ await app.register(favoriteRoutes, { prefix: '/api/favorites' })
 await app.register(chatRoutes,     { prefix: '/api/chat' })
 await app.register(eventRoutes,    { prefix: '/api/events' })
 await app.register(adminRoutes,    { prefix: '/api/admin' })
+await app.register(metricsRoutes,  { prefix: '/api/metrics' })
 
 app.get('/health', () => ({ status: 'ok', version: '1.0.0' }))
 
