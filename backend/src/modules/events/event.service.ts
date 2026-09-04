@@ -117,8 +117,24 @@ export class EventService {
       },
     })
     if (!event) throw new Error('Мероприятие не найдено')
-    if (!(await this.isMember(id, userId))) throw new Error('Нет доступа к этому мероприятию')
-    return event
+
+    // Полный доступ — заказчик и подтверждённые исполнители (участники чата).
+    if (await this.isMember(id, userId)) return event
+
+    // Исполнитель с ещё не подтверждённой заявкой тоже может открыть мероприятие,
+    // но видит только дату/город/роли и свою заявку — без чужих откликов и чата.
+    const viewerProfile = await db.query.profiles.findFirst({ where: eq(profiles.userId, userId) })
+    const ownBooking = viewerProfile
+      && event.bookings.find(b => b.profile?.id === viewerProfile.id && b.status !== 'cancelled' && b.status !== 'refunded')
+    if (ownBooking) {
+      return {
+        ...event,
+        bookings: event.bookings.filter(b => b.profile?.id === viewerProfile!.id),
+        conversation: null,
+      }
+    }
+
+    throw new Error('Нет доступа к этому мероприятию')
   }
 
   async update(id: string, userId: string, dto: UpdateEventDto) {
