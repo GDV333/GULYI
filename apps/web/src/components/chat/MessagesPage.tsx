@@ -174,6 +174,11 @@ export function MessagesPage() {
       <Header />
       <main style={{ background: BG, minHeight: 'calc(100vh - 60px)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px clamp(16px,4vw,40px)' }}>
+          <button
+            onClick={() => { if (typeof window !== 'undefined' && window.history.length > 1) router.back(); else router.push('/') }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: ACCENT, fontWeight: 600, fontSize: 14, padding: 0, marginBottom: 12 }}>
+            ← Назад
+          </button>
           <h1 style={{ fontWeight: 800, fontSize: 24, color: TEXT, marginBottom: 16 }}>Сообщения</h1>
 
           {error && <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#B91C1C', borderRadius: 12, padding: '12px 16px', fontSize: 14, marginBottom: 16 }}>{error}</div>}
