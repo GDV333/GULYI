@@ -39,6 +39,16 @@ const CATEGORIES = [
 
 const CAT_MAP = Object.fromEntries(CATEGORIES.map(c => [c.value, c]))
 
+// Мягкий пастельный тон под эмодзи — чтобы у каждой категории был свой характер
+const CAT_TINT: Record<string, string> = {
+  host: '#ECE3FF', dj: '#E3E9FF', organizer: '#E0F0FF', video: '#F0E5FF',
+  photo: '#FFE2EC', reels: '#FBE2FF', coordinator: '#FFEFD8', light_sound: '#FFF6D2',
+  outfit: '#FFE3EF', venue: '#E2ECFF', transfer: '#FFE0E0', photo_studio: '#ECE3FF',
+  catering: '#FFE7D2', jewelry: '#DBF5FB', barbershop: '#D9F2EE', makeup: '#FFDFEA',
+  bachelor: '#F2E6D7', bachelorette: '#FFE2F1', decor: '#E0F5E2',
+}
+const tintOf = (v: string) => CAT_TINT[v] || '#EEE8F7'
+
 interface Profile {
   id: string; displayName: string; city: string; bio: string | null
   priceFrom: string | null; priceUnit: string | null; avgRating: string | null
@@ -261,32 +271,50 @@ export function CatalogPage() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px,1fr))', gap: 12 }}>
-              {CATEGORIES.map(cat => {
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(168px,1fr))', gap: 14 }}>
+              {CATEGORIES.map((cat, i) => {
                 const sel = selectedCats.includes(cat.value)
+                const tint = tintOf(cat.value)
                 return (
                   <button key={cat.value} onClick={() => toggleCat(cat.value)}
+                    className={`cat-card gulyay-pop${sel ? ' is-sel' : ''}`}
                     style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      gap: 10, padding: 'clamp(16px,3vw,24px)', borderRadius: 18,
-                      border: `1px solid ${sel ? ACCENT : BORDER}`,
-                      background: sel ? `rgba(124,58,237,0.1)` : CARD,
-                      boxShadow: '0 2px 12px rgba(21,15,46,0.05)',
-                      cursor: 'pointer', position: 'relative', transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={e => { if (!sel) (e.currentTarget as HTMLElement).style.borderColor = 'rgba(21,15,46,0.2)' }}
-                    onMouseLeave={e => { if (!sel) (e.currentTarget as HTMLElement).style.borderColor = BORDER }}>
-                    {sel && (
-                      <div style={{ position: 'absolute', top: 10, right: 10, width: 20, height: 20, borderRadius: '50%', background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 700 }}>✓</span>
-                      </div>
-                    )}
-                    <span style={{ fontSize: 40 }}>{cat.emoji}</span>
-                    <span style={{ fontWeight: 600, fontSize: 14, color: sel ? ACCENT : TEXT, textAlign: 'center' }}>{cat.label}</span>
+                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                      gap: 14, padding: 18, borderRadius: 20,
+                      border: `1.5px solid ${sel ? ACCENT : 'rgba(21,15,46,0.06)'}`,
+                      background: `radial-gradient(150px 120px at 100% 0%, ${tint} 0%, transparent 62%), linear-gradient(160deg, ${tint}66 0%, #FFFFFF 58%)`,
+                      boxShadow: sel ? `0 12px 28px -12px ${ACCENT}66` : '0 3px 14px rgba(21,15,46,0.05)',
+                      cursor: 'pointer', position: 'relative',
+                      transition: 'transform .22s cubic-bezier(.2,.7,.2,1), box-shadow .22s',
+                      animationDelay: `${0.04 * i}s`,
+                    }}>
+                    <span style={{
+                      width: 48, height: 48, borderRadius: 15,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 26, background: '#FFFFFF',
+                      boxShadow: `0 5px 16px -3px ${tint}, inset 0 0 0 1px rgba(21,15,46,0.05)`,
+                    }}>
+                      {cat.emoji}
+                    </span>
+
+                    <span style={{ fontWeight: 700, fontSize: 14, lineHeight: 1.25, color: sel ? ACCENT : TEXT, textAlign: 'left', letterSpacing: '-0.01em' }}>{cat.label}</span>
+
+                    <span style={{
+                      position: 'absolute', top: 12, right: 12, width: 22, height: 22, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: sel ? ACCENT : 'rgba(255,255,255,0.75)',
+                      border: `1.5px solid ${sel ? ACCENT : 'rgba(21,15,46,0.12)'}`,
+                      color: '#FFFFFF', fontSize: 11, fontWeight: 800,
+                    }}>{sel ? '✓' : ''}</span>
                   </button>
                 )
               })}
             </div>
+            <style>{`
+              .cat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px -12px rgba(124,58,237,0.28) !important; }
+              .cat-card:active { transform: translateY(-1px); }
+              .cat-card.is-sel:hover { box-shadow: 0 16px 34px -12px rgba(124,58,237,0.4) !important; }
+            `}</style>
           </div>
         </main>
         <Footer />
