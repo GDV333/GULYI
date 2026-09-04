@@ -29,11 +29,15 @@ const setupProfileSchema = z.object({
   priceUnit:    z.string().max(40).optional(),
 })
 
+// Вход и регистрация — самые лакомые точки для перебора, поэтому лимит
+// заметно жёстче общего: 10 попыток с IP за 5 минут.
+const authLimit = { config: { rateLimit: { max: 10, timeWindow: '5 minutes' } } }
+
 export async function authRoutes(app: FastifyInstance) {
   const authService = new AuthService(app)
 
   // POST /api/auth/register
-  app.post('/register', async (request, reply) => {
+  app.post('/register', authLimit, async (request, reply) => {
     const body = registerSchema.safeParse(request.body)
     if (!body.success) return reply.status(400).send({ error: body.error.flatten() })
     try {
@@ -45,7 +49,7 @@ export async function authRoutes(app: FastifyInstance) {
   })
 
   // POST /api/auth/login
-  app.post('/login', async (request, reply) => {
+  app.post('/login', authLimit, async (request, reply) => {
     const body = loginSchema.safeParse(request.body)
     if (!body.success) return reply.status(400).send({ error: body.error.flatten() })
     try {

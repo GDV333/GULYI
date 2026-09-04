@@ -2,15 +2,18 @@ import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { CatalogService } from './catalog.service'
 
+// Границы важны не только для порядка: без них page=-1 уходил в SQL как
+// отрицательный OFFSET, а date=abc — как Invalid Date, и оба валили запрос в 500.
 const filtersSchema = z.object({
-  categorySlug: z.string().optional(),
-  city:         z.string().optional(),
-  priceMin:     z.coerce.number().optional(),
-  priceMax:     z.coerce.number().optional(),
-  search:       z.string().optional(),
-  date:         z.string().optional(),
-  page:         z.coerce.number().default(1),
-  limit:        z.coerce.number().max(50).default(12),
+  categorySlug: z.string().max(80).optional(),
+  city:         z.string().max(80).optional(),
+  priceMin:     z.coerce.number().min(0).max(100_000_000).optional(),
+  priceMax:     z.coerce.number().min(0).max(100_000_000).optional(),
+  search:       z.string().max(120).optional(),
+  date:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата в формате ГГГГ-ММ-ДД')
+                  .refine(d => !Number.isNaN(Date.parse(d)), 'Некорректная дата').optional(),
+  page:         z.coerce.number().int().min(1).max(10_000).default(1),
+  limit:        z.coerce.number().int().min(1).max(50).default(12),
   sortBy:       z.enum(['rating','price_asc','price_desc','reviews']).default('rating'),
 })
 

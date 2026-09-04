@@ -7,7 +7,6 @@ import {
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import { randomUUID } from 'crypto'
-import { extname } from 'path'
 import { config } from '../../config'
 
 const s3 = new S3Client({
@@ -23,9 +22,26 @@ const s3 = new S3Client({
 const BUCKET = config.s3.bucket
 const MINIO_PUBLIC_URL = config.s3.publicUrl
 
-// Разрешаем только настоящие изображения и видео — иначе в публичный бакет можно
-// было бы загрузить произвольный файл (например .html со скриптом) под видом "фото"
-const ALLOWED_MEDIA_MIME = /^(image|video)\//
+// Белый список типов: и расширение, и Content-Type в хранилище берём отсюда,
+// а не из того, что прислал клиент. SVG сознательно НЕ пускаем — это XML,
+// который браузер исполняет как документ со скриптами, и залитый в публичный
+// бакет .svg превращается в хранимую XSS. По той же причине нет html/xml.
+const ALLOWED_MEDIA: Record<string, { ext: string; kind: 'image' | 'video' }> = {
+  'image/jpeg': { ext: '.jpg',  kind: 'image' },
+  'image/pjpeg':{ ext: '.jpg',  kind: 'image' },
+  'image/png':  { ext: '.png',  kind: 'image' },
+  'image/webp': { ext: '.webp', kind: 'image' },
+  'image/gif':  { ext: '.gif',  kind: 'image' },
+  'image/avif': { ext: '.avif', kind: 'image' },
+  'image/heic': { ext: '.heic', kind: 'image' },
+  'video/mp4':  { ext: '.mp4',  kind: 'video' },
+  'video/webm': { ext: '.webm', kind: 'video' },
+  'video/quicktime': { ext: '.mov', kind: 'video' },
+}
+
+export function mediaKindOf(mimetype?: string): 'image' | 'video' {
+  return ALLOWED_MEDIA[(mimetype || '').toLowerCase()]?.kind ?? 'image'
+}
 
 // На свежем окружении (другой ноутбук, чистый MinIO) бакета ещё нет — создаём его
 // один раз за процесс и открываем на публичное чтение, чтобы <img src> работал.
@@ -57,22 +73,25 @@ async function ensureBucket() {
 }
 
 async function uploadToMinio(file: any, folder: string): Promise<string> {
-  if (!ALLOWED_MEDIA_MIME.test(file.mimetype || '')) {
-    throw new Error('Можно загружать только изображения и видео')
+  const allowed = ALLOWED_MEDIA[(file.mimetype || '').toLowerCase()]
+  if (!allowed) {
+    throw new Error('Можно загружать только фото (jpg, png, webp, gif, avif, heic) и видео (mp4, webm, mov)')
   }
 
   await ensureBucket()
 
-  const ext = extname(file.filename || 'file') || '.jpg'
-  const key = `${folder}/${randomUUID()}${ext}`
+  // Расширение и Content-Type — только из белого списка: имя файла и заголовок
+  // от клиента до хранилища не доходят, поэтому подменить тип отдачи нельзя.
+  const key = `${folder}/${randomUUID()}${allowed.ext}`
 
   const upload = new Upload({
     client: s3,
     params: {
-      Bucket:      BUCKET,
-      Key:         key,
-      Body:        file.file,
-      ContentType: file.mimetype || 'image/jpeg',
+      Bucket:             BUCKET,
+      Key:                key,
+      Body:               file.file,
+      ContentType:        file.mimetype.toLowerCase(),
+      ContentDisposition: 'inline',
     },
   })
 
@@ -158,7 +177,7 @@ export class ProfileService {
     const profile = await db.query.profiles.findFirst({ where: eq(profiles.userId, userId) })
     if (!profile) throw new Error('Профиль не найден')
     const url = await uploadToMinio(file, 'portfolio')
-    const mediaType = (file.mimetype || '').startsWith('video') ? 'video' : 'image'
+    const mediaType = mediaKindOf(file.mimetype)
     const [item] = await db.insert(portfolioItems).values({
       profileId: profile.id, mediaUrl: url, mediaType, sortOrder: 0,
     }).returning()
@@ -225,7 +244,7 @@ export class ProfileService {
     const album = await this.requireOwnAlbum(userId, albumId)
 
     const url = await uploadToMinio(file, 'albums')
-    const mediaType = (file.mimetype || '').startsWith('video') ? 'video' : 'image'
+    const mediaType = mediaKindOf(file.mimetype)
     const [photo] = await db.insert(albumPhotos).values({
       albumId, mediaUrl: url, mediaType, sortOrder: 0,
     }).returning()

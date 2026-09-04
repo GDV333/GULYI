@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import rateLimit from '@fastify/rate-limit'
 import jwt from '@fastify/jwt'
 import multipart from '@fastify/multipart'
 import staticPlugin from '@fastify/static'
@@ -33,8 +34,19 @@ const app = Fastify({
 // ─── Plugins ─────────────────────────────────────────────────────────────────
 
 await app.register(cors, {
-  origin: ['http://localhost:3000', 'https://gulyay.ru'],
+  origin: config.env === 'production'
+    ? ['https://gulyay.ru']
+    : ['http://localhost:3000', 'https://gulyay.ru'],
   credentials: true,
+})
+
+// Общий потолок запросов с одного IP — чтобы никто не заваливал API перебором
+// паролей, спамом регистраций или флудом в трекер посещений.
+await app.register(rateLimit, {
+  global: true,
+  max: 300,
+  timeWindow: '1 minute',
+  errorResponseBuilder: () => ({ statusCode: 429, error: 'Too Many Requests', message: 'Слишком много запросов, попробуйте позже' }),
 })
 
 await app.register(jwt, {
@@ -59,6 +71,18 @@ app.decorate('authenticate', async function (request: any, reply: any) {
   } catch {
     reply.status(401).send({ error: 'Unauthorized' })
   }
+})
+
+// ─── Ошибки ───────────────────────────────────────────────────────────────────
+// Наружу — обезличенный текст: иначе Fastify отдаёт сообщение исключения, а в
+// нём, например, целиком SQL-запрос со всеми таблицами и колонками.
+app.setErrorHandler((err, request, reply) => {
+  const status = err.statusCode ?? 500
+  if (status >= 500) {
+    request.log.error({ err }, 'unhandled error')
+    return reply.status(status).send({ error: 'Внутренняя ошибка сервера' })
+  }
+  reply.status(status).send({ error: err.message })
 })
 
 // ─── Routes ──────────────────────────────────────────────────────────────────

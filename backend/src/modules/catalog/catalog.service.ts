@@ -97,7 +97,7 @@ export class CatalogService {
         offset,
         orderBy: [orderBy],
         with: {
-          user:              { columns: { email: true, role: true } },
+          user:              { columns: { role: true } },
           profileCategories: {
             where: eq(profileCategories.isPrimary, true),
             with:  { category: { columns: { slug: true, name: true, icon: true } } },
@@ -122,9 +122,9 @@ export class CatalogService {
     const profile = await db.query.profiles.findFirst({
       where: eq(profiles.id, id),
       with: {
-        user:              { columns: { email: true, role: true } },
+        user:              { columns: { role: true } },
         profileCategories: { with: { category: true } },
-        contacts:  true,
+        contacts:  { where: (c: any) => eq(c.isVisible, true) },
         portfolio: { orderBy: (p) => [asc(p.sortOrder)] },
         albums: {
           orderBy: (a) => [asc(a.sortOrder)],

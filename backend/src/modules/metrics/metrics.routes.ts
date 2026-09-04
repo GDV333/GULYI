@@ -12,7 +12,9 @@ const visitSchema = z.object({
 // Публичный лёгкий трекер посещений. Никогда не мешает пользователю:
 // при любой ошибке молча отвечает 204.
 export async function metricsRoutes(app: FastifyInstance) {
-  app.post('/visit', async (request, reply) => {
+  // Ручка публичная и пишет в базу, поэтому лимит отдельный: живому человеку
+  // 60 переходов в минуту хватит с запасом, а скрипту флудить не даст.
+  app.post('/visit', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (request, reply) => {
     const body = visitSchema.safeParse(request.body)
     if (body.success) {
       try {
