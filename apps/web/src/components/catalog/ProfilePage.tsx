@@ -109,7 +109,7 @@ function CalendarPicker({ busySlots, selected, onSelect }: {
           if (isPast) { textColor = 'text-[#C5BFB8]'; bg = '' }
           else if (isBusy) { bg = 'bg-red-50 hover:bg-red-100'; textColor = 'text-red-600 font-semibold'; dot = <div className="w-1 h-1 rounded-full bg-red-400 mx-auto mt-0.5" /> }
           else { dot = <div className="w-1 h-1 rounded-full bg-green-400 mx-auto mt-0.5" /> }
-          if (isSelected) { bg = isBusy ? 'bg-red-500' : 'bg-[#2d5bb8]'; textColor = 'text-white font-bold'; dot = null }
+          if (isSelected) { bg = isBusy ? 'bg-red-500' : 'bg-[#7C3AED]'; textColor = 'text-white font-bold'; dot = null }
           return (
             <button key={i} disabled={isPast} onClick={() => onSelect(dateStr)}
               className={`rounded-lg py-1.5 text-[13px] transition-all ${bg} ${textColor} ${isPast ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
@@ -319,7 +319,7 @@ export function ProfilePage({ id }: { id: string }) {
     <><Header /><main style={{ background: 'linear-gradient(135deg, #F3E9FC 0%, #FCEAF1 45%, #FFF4EA 100%)', minHeight: '100vh' }}>
       <div className="max-w-[1240px] mx-auto px-8 py-20 text-center">
         <p className="text-6xl mb-4">🔍</p><h1 className="font-bold text-2xl mb-2">Исполнитель не найден</h1>
-        <Link href="/catalog" className="text-[#2d5bb8] font-semibold hover:underline">← Вернуться в каталог</Link>
+        <Link href="/catalog" className="text-[#7C3AED] font-semibold hover:underline">← Вернуться в каталог</Link>
       </div>
     </main><Footer /></>
   )
@@ -345,7 +345,7 @@ export function ProfilePage({ id }: { id: string }) {
     return acc
   }, {} as Record<string, Service[]>)
 
-  const inputCls = 'w-full border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]'
+  const inputCls = 'w-full border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]'
 
   return (
     <>
@@ -363,7 +363,7 @@ export function ProfilePage({ id }: { id: string }) {
       <main style={{ background: 'linear-gradient(135deg, #F3E9FC 0%, #FCEAF1 45%, #FFF4EA 100%)', minHeight: '100vh' }}>
         <div className="max-w-[1240px] mx-auto px-8 py-8">
           <div className="flex items-center gap-2 text-sm text-[#6B6558] mb-5">
-            <Link href="/catalog" className="hover:text-[#2d5bb8] transition-colors">Каталог</Link>
+            <Link href="/catalog" className="hover:text-[#7C3AED] transition-colors">Каталог</Link>
             <span>→</span><span className="text-[#1C1A17] font-medium">{profile.displayName}</span>
           </div>
 
@@ -534,7 +534,7 @@ export function ProfilePage({ id }: { id: string }) {
                     )
                   ) : (
                     <div>
-                      <button onClick={() => setOpenAlbum(null)} className="text-sm text-[#6B6558] hover:text-[#2d5bb8] mb-4 transition-colors">← Все альбомы</button>
+                      <button onClick={() => setOpenAlbum(null)} className="text-sm text-[#6B6558] hover:text-[#7C3AED] mb-4 transition-colors">← Все альбомы</button>
                       <h3 className="font-bold text-[20px] mb-1">{openAlbum.title}</h3>
                       {openAlbum.description && <p className="text-[#6B6558] text-sm mb-4">{openAlbum.description}</p>}
                       {openAlbum.photos?.length === 0 ? (
@@ -659,9 +659,9 @@ export function ProfilePage({ id }: { id: string }) {
                         <div>
                           <label className="text-xs font-bold uppercase tracking-widest text-[#6B6558] mb-1.5 block">Время</label>
                           <div className="flex gap-2 items-center">
-                            <input type="time" value={bookingTimeFrom} onChange={e => setBookingTimeFrom(e.target.value)} className="flex-1 border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#2d5bb8] bg-[#FAFAF8]" />
+                            <input type="time" value={bookingTimeFrom} onChange={e => setBookingTimeFrom(e.target.value)} className="flex-1 border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#7C3AED] bg-[#FAFAF8]" />
                             <span className="text-[#6B6558] text-sm">до</span>
-                            <input type="time" value={bookingTimeTo} onChange={e => setBookingTimeTo(e.target.value)} className="flex-1 border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#2d5bb8] bg-[#FAFAF8]" />
+                            <input type="time" value={bookingTimeTo} onChange={e => setBookingTimeTo(e.target.value)} className="flex-1 border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#7C3AED] bg-[#FAFAF8]" />
                           </div>
                         </div>
 
@@ -718,7 +718,7 @@ export function ProfilePage({ id }: { id: string }) {
                           <label className="text-xs font-bold uppercase tracking-widest text-[#6B6558] mb-1.5 block">Дополнительно</label>
                           <textarea rows={2} placeholder="Пожелания, особенности мероприятия..."
                             value={bookingNote} onChange={e => setBookingNote(e.target.value)}
-                            className="w-full border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8] resize-none" />
+                            className="w-full border border-[#E8E2D8] rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8] resize-none" />
                         </div>
 
                         <button onClick={handleBooking} disabled={bookingLoading}

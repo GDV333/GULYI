@@ -161,7 +161,7 @@ export function RegisterPage() {
             <span className="font-bold text-[28px]" style={{ fontFamily: '"Bricolage Grotesque", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
               гуляй
             </span>
-            <span className="w-3 h-3 rounded-full bg-[#2d5bb8] inline-block" />
+            <span className="w-[10px] h-[10px] rounded-full inline-block" style={{ background: '#7C3AED', boxShadow: '0 0 12px rgba(124,58,237,0.5)' }} />
           </Link>
           <p className="text-[#6B6558] text-sm mt-2">
             {step === 1 ? 'Создайте аккаунт бесплатно' : 'Выберите категорию — шаг 2 из 2'}
@@ -235,7 +235,7 @@ export function RegisterPage() {
                     type="text" required minLength={2} placeholder="Иван"
                     value={form1.firstName}
                     onChange={e => setForm1(f => ({ ...f, firstName: e.target.value }))}
-                    className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                    className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                   />
                 </div>
                 <div className="flex-1">
@@ -244,7 +244,7 @@ export function RegisterPage() {
                     type="text" required minLength={2} placeholder="Иванов"
                     value={form1.lastName}
                     onChange={e => setForm1(f => ({ ...f, lastName: e.target.value }))}
-                    className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                    className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                   />
                 </div>
               </div>
@@ -255,7 +255,7 @@ export function RegisterPage() {
                   type="email" required placeholder="you@example.com"
                   value={form1.email}
                   onChange={e => setForm1(f => ({ ...f, email: e.target.value }))}
-                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                 />
               </div>
 
@@ -267,7 +267,7 @@ export function RegisterPage() {
                   type="tel" placeholder="+7 900 000 00 00"
                   value={form1.phone}
                   onChange={e => setForm1(f => ({ ...f, phone: e.target.value }))}
-                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                 />
               </div>
 
@@ -279,7 +279,7 @@ export function RegisterPage() {
                   onChange={e => { setForm1(f => ({ ...f, city: e.target.value })); setCityOpen1(true) }}
                   onFocus={() => setCityOpen1(true)}
                   onBlur={() => setTimeout(() => setCityOpen1(false), 150)}
-                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                 />
                 {cityOpen1 && form1.city.length >= 1 && filteredCities1.length > 0 && (
                   <div className="absolute z-10 left-0 right-0 top-full mt-1 bg-white border border-[#E8E2D8] rounded-xl shadow-lg overflow-hidden max-h-48 overflow-y-auto">
@@ -304,7 +304,7 @@ export function RegisterPage() {
                   type="password" required minLength={8} placeholder="Минимум 8 символов"
                   value={form1.password}
                   onChange={e => setForm1(f => ({ ...f, password: e.target.value }))}
-                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                 />
               </div>
 
@@ -318,7 +318,7 @@ export function RegisterPage() {
 
               <p className="text-center text-sm text-[#6B6558] mt-2">
                 Уже есть аккаунт?{' '}
-                <Link href="/auth/login" className="text-[#2d5bb8] font-semibold hover:underline">
+                <Link href="/auth/login" className="text-[#7C3AED] font-semibold hover:underline">
                   Войти
                 </Link>
               </p>
@@ -366,7 +366,7 @@ export function RegisterPage() {
                   onChange={e => { setForm2(f => ({ ...f, city: e.target.value })); setCityOpen(true) }}
                   onFocus={() => setCityOpen(true)}
                   onBlur={() => setTimeout(() => setCityOpen(false), 150)}
-                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#2d5bb8] transition-colors bg-[#FAFAF8]"
+                  className="w-full border border-[#E8E2D8] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#7C3AED] transition-colors bg-[#FAFAF8]"
                 />
                 {cityOpen && form2.city.length >= 1 && filteredCities.length > 0 && (
                   <div className="absolute z-10 left-0 right-0 top-full mt-1 bg-white border border-[#E8E2D8] rounded-xl shadow-lg overflow-hidden max-h-48 overflow-y-auto">
