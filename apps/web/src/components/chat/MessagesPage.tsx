@@ -183,10 +183,10 @@ export function MessagesPage() {
 
           {error && <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#B91C1C', borderRadius: 12, padding: '12px 16px', fontSize: 14, marginBottom: 16 }}>{error}</div>}
 
-          <div style={{ display: 'flex', gap: 16, background: '#FFFFFF', border: `1px solid ${BORDER}`, borderRadius: 20, overflow: 'hidden', height: 'calc(100vh - 200px)', minHeight: 420 }}>
+          <div className="msgs-panel" style={{ display: 'flex', gap: 16, background: '#FFFFFF', border: `1px solid ${BORDER}`, borderRadius: 20, overflow: 'hidden', height: 'calc(100vh - 200px)', minHeight: 420 }}>
 
             {/* Список диалогов */}
-            <div style={{ width: 280, flexShrink: 0, borderRight: `1px solid ${BORDER}`, overflowY: 'auto' }}>
+            <div className={`msgs-list-pane${activeId ? ' is-hidden-mobile' : ''}`} style={{ width: 280, flexShrink: 0, borderRight: `1px solid ${BORDER}`, overflowY: 'auto' }}>
               {loadingList ? (
                 <p style={{ padding: 16, color: MUTED, fontSize: 14 }}>Загрузка...</p>
               ) : conversations.length === 0 ? (
@@ -239,20 +239,27 @@ export function MessagesPage() {
             </div>
 
             {/* Переписка */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <div className={`msgs-thread-pane${activeId ? ' is-active-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
               {!activeConv ? (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: MUTED, fontSize: 14 }}>
                   Выберите диалог слева
                 </div>
               ) : (
                 <>
-                  <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                    <p style={{ fontWeight: 700, fontSize: 15, color: TEXT }}>
-                      {myId && otherParty(activeConv, myId).profile?.displayName}
-                    </p>
-                    <p style={{ color: MUTED, fontSize: 12 }}>
-                      {activeConv.booking.eventType} · {new Date(activeConv.booking.eventDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </p>
+                  <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <button onClick={() => setActiveId(null)} className="msgs-back-mobile"
+                      style={{ alignItems: 'center', justifyContent: 'center', width: 32, height: 32, flexShrink: 0, borderRadius: '50%', border: 'none', background: '#F3EEFB', color: ACCENT, cursor: 'pointer', fontSize: 16 }}
+                      aria-label="К списку диалогов">
+                      ←
+                    </button>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: 15, color: TEXT }}>
+                        {myId && otherParty(activeConv, myId).profile?.displayName}
+                      </p>
+                      <p style={{ color: MUTED, fontSize: 12 }}>
+                        {activeConv.booking.eventType} · {new Date(activeConv.booking.eventDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
                   </div>
 
                   <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -261,7 +268,7 @@ export function MessagesPage() {
                     ) : messages.map(m => {
                       const mine = m.sender.id === myId
                       return (
-                        <div key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '70%' }}>
+                        <div key={m.id} className="msgs-bubble" style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '70%' }}>
                           <div
                             onContextMenu={e => { if (!mine) return; e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, kind: 'msg', id: m.id }) }}
                             style={{

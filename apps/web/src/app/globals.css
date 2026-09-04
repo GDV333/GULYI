@@ -25,6 +25,21 @@
   }
 }
 
+/* Личные сообщения — на узких экранах показываем список ИЛИ переписку, не обе колонки разом */
+.msgs-back-mobile { display: none; }
+
+@media (max-width: 720px) {
+  .msgs-list-pane { width: 100% !important; border-right: none !important; }
+  .msgs-list-pane.is-hidden-mobile { display: none !important; }
+  .msgs-thread-pane { display: none !important; }
+  .msgs-thread-pane.is-active-mobile { display: flex !important; }
+  .msgs-back-mobile { display: inline-flex !important; }
+}
+
+@media (max-width: 480px) {
+  .msgs-bubble { max-width: 85% !important; }
+}
+
 input::placeholder {
   color: rgba(21,15,46,0.35) !important;
 }
