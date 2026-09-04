@@ -51,8 +51,8 @@ export function ListingsGrid() {
   }
 
   return (
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(28px,5vw,48px) clamp(16px,4vw,40px)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+    <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(18px,3vw,32px) clamp(16px,4vw,40px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h2 style={{ fontSize: 'clamp(22px,2.5vw,28px)', fontWeight: 800, color: TEXT, letterSpacing: '-0.02em', marginBottom: 4 }}>Рекомендуем для вас</h2>
           <p style={{ color: MUTED, fontSize: 14 }}>Подобрано на основе популярных запросов</p>

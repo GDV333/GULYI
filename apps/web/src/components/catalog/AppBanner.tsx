@@ -13,21 +13,17 @@ export function AppBanner() {
   }, [showNotice])
 
   return (
-    <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 clamp(16px,4vw,40px) clamp(20px,4vw,36px)', position: 'relative' }}>
-      <div style={{ borderRadius: 28, padding: 'clamp(24px,4vw,40px) clamp(20px,4vw,48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid rgba(21,15,46,0.07)', boxShadow: '0 10px 40px rgba(21,15,46,0.06)' }}>
-        <div>
-          <h3 style={{ fontFamily: 'var(--font-bricolage),"Bricolage Grotesque",system-ui', fontSize: 'clamp(20px,2.5vw,28px)', fontWeight: 800, letterSpacing: '-0.02em', color: '#150F2E', marginBottom: 8 }}>
-            Всё то же — в мобильном приложении
-          </h3>
-          <p style={{ color: 'rgba(21,15,46,0.5)', fontSize: 15, maxWidth: '44ch' }}>
-            Каталог специалистов, чат с исполнителями и брони всегда под рукой.
-          </p>
-        </div>
-        <button onClick={() => setShowNotice(true)} style={{ background: 'linear-gradient(90deg, #8B3DFF 0%, #E93D8A 100%)', color: '#FFFFFF', padding: '13px 24px', borderRadius: 50, fontSize: 15, fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', flexShrink: 0 }}>
-          Открыть приложение
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M13 6l6 6-6 6"/>
-          </svg>
+    <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 clamp(16px,4vw,40px) clamp(16px,3vw,28px)', position: 'relative' }}>
+      <div style={{ borderRadius: 18, padding: '14px clamp(16px,3vw,24px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid rgba(21,15,46,0.07)', boxShadow: '0 4px 20px rgba(21,15,46,0.05)' }}>
+        <p style={{ color: 'rgba(21,15,46,0.62)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 18 }}>📱</span>
+          <span><b style={{ color: '#150F2E', fontWeight: 700 }}>Скоро мобильное приложение</b> — каталог, чат и брони под рукой.</span>
+        </p>
+        <button onClick={() => setShowNotice(true)}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#7C3AED'; e.currentTarget.style.color = '#7C3AED' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(21,15,46,0.14)'; e.currentTarget.style.color = 'rgba(21,15,46,0.6)' }}
+          style={{ background: 'none', color: 'rgba(21,15,46,0.6)', padding: '9px 18px', borderRadius: 50, fontSize: 13.5, fontWeight: 600, border: '1px solid rgba(21,15,46,0.14)', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, transition: 'border-color .18s, color .18s' }}>
+          Уведомить о запуске
         </button>
       </div>
 

@@ -39,3 +39,50 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   outline: 2px solid #7C3AED;
   outline-offset: 2px;
 }
+
+/* ── Плавная прокрутка по якорям (Как это работает / Исполнителям) ── */
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+
+/* ── Атмосфера героя: два мягких пятна света, одно медленно дышит ── */
+@keyframes gulyay-aurora {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  50%  { transform: translate3d(3%, -4%, 0) scale(1.12); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+.gulyay-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.gulyay-aurora::before,
+.gulyay-aurora::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+.gulyay-aurora::before {
+  width: 520px; height: 520px;
+  left: -6%; top: -18%;
+  background: radial-gradient(circle, rgba(139,61,255,0.28), transparent 70%);
+  animation: gulyay-aurora 18s ease-in-out infinite;
+}
+.gulyay-aurora::after {
+  width: 460px; height: 460px;
+  right: 2%; top: 4%;
+  background: radial-gradient(circle, rgba(233,61,138,0.22), transparent 70%);
+  animation: gulyay-aurora 22s ease-in-out infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .gulyay-aurora::before,
+  .gulyay-aurora::after { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

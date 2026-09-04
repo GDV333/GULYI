@@ -21,6 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru" className={`${manrope.variable} ${bricolage.variable}`} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* без JS — показываем все анимируемые блоки как есть */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
       </head>
       <body className="antialiased" style={{ background: 'linear-gradient(135deg, #F3E9FC 0%, #FCEAF1 45%, #FFF4EA 100%)', backgroundAttachment: 'fixed', color: '#150F2E' }}>
         {children}

@@ -6,8 +6,7 @@ import { ProCta }           from '@/components/catalog/ProCta'
 import { AppBanner }        from '@/components/catalog/AppBanner'
 import { Header }           from '@/components/layout/Header'
 import { Footer }           from '@/components/layout/Footer'
-
-
+import { Reveal }           from '@/components/ui/Reveal'
 
 export default function HomePage() {
   return (
@@ -16,10 +15,10 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <CategoryChips />
-        <ListingsGrid />
-        <HowItWorks />
-        <AppBanner />
-        <ProCta />
+        <Reveal><ListingsGrid /></Reveal>
+        <Reveal><HowItWorks /></Reveal>
+        <Reveal><AppBanner /></Reveal>
+        <Reveal><ProCta /></Reveal>
       </main>
       <Footer />
     </>

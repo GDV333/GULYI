@@ -45,12 +45,18 @@ function RotatingWord() {
   return (
     <span style={{
       display: 'inline-block',
+      position: 'relative',
+      minWidth: '5.4ch',
       color: ACCENT,
       transition: 'opacity 0.22s ease, transform 0.22s ease',
       opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(-16px)',
+      transform: visible ? 'translateY(0)' : 'translateY(-14px)',
     }}>
       {WORDS[idx]}
+      <span style={{
+        position: 'absolute', left: 0, right: 6, bottom: '0.12em', height: 3, borderRadius: 3,
+        background: ACCENT_GRADIENT, opacity: 0.9,
+      }} />
     </span>
   )
 }
@@ -84,7 +90,9 @@ export function HeroSection() {
   }
 
   return (
-    <section style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(36px,5vw,64px) clamp(16px,4vw,40px) clamp(28px,4vw,48px)' }}>
+    <section style={{ position: 'relative', maxWidth: 1280, margin: '0 auto', padding: 'clamp(22px,3.5vw,44px) clamp(16px,4vw,40px) clamp(20px,3vw,32px)' }}>
+
+      <div className="gulyay-aurora" aria-hidden="true" />
 
       {/* Badge */}
       <div style={{
@@ -92,7 +100,8 @@ export function HeroSection() {
         background: '#FFFFFF',
         border: '1px solid rgba(124,58,237,0.15)',
         boxShadow: '0 4px 20px rgba(124,58,237,0.12)',
-        borderRadius: 50, padding: '7px 16px', marginBottom: 28,
+        borderRadius: 50, padding: '7px 16px', marginBottom: 18,
+        position: 'relative', zIndex: 1,
       }}>
         <span style={{ width: 7, height: 7, borderRadius: '50%', background: ACCENT, display: 'inline-block', boxShadow: `0 0 10px ${ACCENT}` }} />
         <span style={{ color: ACCENT, fontSize: 13, fontWeight: 600 }}>Более 4 200 проверенных исполнителей в 38 городах</span>
@@ -101,27 +110,28 @@ export function HeroSection() {
       {/* Headline */}
       <h1 style={{
         fontFamily: 'var(--font-bricolage), "Bricolage Grotesque", system-ui',
-        fontSize: 'clamp(38px,6vw,80px)',
+        fontSize: 'clamp(34px,5.4vw,60px)',
         fontWeight: 900,
         color: TEXT,
-        lineHeight: 1.05,
+        lineHeight: 1.04,
         letterSpacing: '-0.03em',
-        marginBottom: 20,
+        marginBottom: 14,
+        position: 'relative', zIndex: 1,
       }}>
-        Соберите<br />
-        <RotatingWord /><br />
-        <span style={{ fontWeight: 300, color: 'rgba(21,15,46,0.65)' }}>на одном событии</span>
+        Соберите <RotatingWord /><br />
+        <span style={{ fontWeight: 300, color: 'rgba(21,15,46,0.6)' }}>на одно событие</span>
       </h1>
 
       {/* Subtitle */}
       <p style={{
-        fontSize: 'clamp(15px,1.5vw,18px)',
+        fontSize: 'clamp(15px,1.4vw,17px)',
         color: MUTED,
-        lineHeight: 1.75,
-        maxWidth: '52ch',
-        marginBottom: 36,
+        lineHeight: 1.65,
+        maxWidth: '46ch',
+        marginBottom: 24,
+        position: 'relative', zIndex: 1,
       }}>
-        Площадки, диджеи, ведущие, фотографы, кейтеринг и декор — выбирайте, сравнивайте и бронируйте всё для события.
+        Площадки, диджеи, ведущие, фотографы, кейтеринг и декор — выбрать, сравнить и забронировать всю команду разом.
       </p>
 
       {/* Search box */}
@@ -134,8 +144,8 @@ export function HeroSection() {
         position: 'relative',
         zIndex: 20,
         flexWrap: 'wrap',
-        marginBottom: 28,
-        boxShadow: '0 10px 40px rgba(21,15,46,0.08)',
+        marginBottom: 20,
+        boxShadow: '0 18px 50px -12px rgba(124,58,237,0.22)',
       }}>
 
         {/* Category */}
@@ -276,7 +286,7 @@ export function HeroSection() {
       </div>
 
       {/* Social proof */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex' }}>
           {['#8B3DFF', '#C13DE9', '#E93D8A', '#FF7A45'].map((c, idx) => (
             <div key={c} style={{
