@@ -93,6 +93,17 @@ export async function eventRoutes(app: FastifyInstance) {
     }
   })
 
+  app.delete('/:id/roles/:roleId', async (request, reply) => {
+    const { id, roleId } = request.params as { id: string; roleId: string }
+    const user = request.user as { id: string }
+    try {
+      const event = await svc.removeRole(id, user.id, roleId)
+      reply.send(event)
+    } catch (err: any) {
+      reply.status(403).send({ error: err.message })
+    }
+  })
+
   app.patch('/:id/checkout', async (request, reply) => {
     const { id } = request.params as { id: string }
     const user = request.user as { id: string }

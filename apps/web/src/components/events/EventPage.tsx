@@ -77,6 +77,7 @@ export function EventPage({ id }: { id: string }) {
 
   const [addRoleOpen, setAddRoleOpen] = useState(false)
   const [addRoleLoading, setAddRoleLoading] = useState(false)
+  const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [chatText, setChatText] = useState('')
@@ -171,6 +172,17 @@ export function EventPage({ id }: { id: string }) {
       })
       if (res.ok) { const data = await res.json(); setEvent(data); setAddRoleOpen(false) }
     } catch (e) { console.error(e) } finally { setAddRoleLoading(false) }
+  }
+
+  const handleDeleteRole = async (roleId: string) => {
+    if (!window.confirm('Удалить эту роль из мероприятия?')) return
+    setDeletingRoleId(roleId)
+    try {
+      const res = await apiFetch(`/api/events/${id}/roles/${roleId}`, { method: 'DELETE' })
+      const data = await res.json().catch(() => null)
+      if (res.ok) setEvent(data)
+      else window.alert(typeof data?.error === 'string' ? data.error : 'Не удалось удалить роль')
+    } catch (e) { console.error(e) } finally { setDeletingRoleId(null) }
   }
 
   const handleSendMessage = async () => {
@@ -301,17 +313,26 @@ export function EventPage({ id }: { id: string }) {
                 {event.roles.map(role => {
                   const roleBookings = event.bookings.filter(b => b.eventRoleId === role.id)
                   const filledBooking = roleBookings.find(b => b.status === 'confirmed' || b.status === 'paid')
+                  const hasActiveBooking = roleBookings.some(b => !['cancelled', 'completed', 'refunded'].includes(b.status))
                   const dateStr = event.eventDate.split('T')[0]
                   const findUrl = `/catalog?categorySlugs=${role.category.slug}${event.city ? `&city=${encodeURIComponent(event.city)}` : ''}&date=${dateStr}&eventId=${event.id}&roleId=${role.id}`
                   return (
                     <div key={role.id} style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: 14 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: 600, fontSize: 14, color: TEXT }}>{role.category.icon} {role.category.name}</span>
-                        {role.status === 'filled'
-                          ? <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 50, background: 'rgba(52,211,153,0.12)', color: '#34D399' }}>✓ Найден</span>
-                          : role.status === 'cancelled'
-                          ? <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 50, background: 'rgba(21,15,46,0.06)', color: MUTED }}>Отменена</span>
-                          : isOwner && <Link href={findUrl} style={{ fontSize: 13, color: ACCENT, fontWeight: 600, textDecoration: 'none' }}>Найти исполнителя →</Link>}
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {role.status === 'filled'
+                            ? <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 50, background: 'rgba(52,211,153,0.12)', color: '#34D399' }}>✓ Найден</span>
+                            : role.status === 'cancelled'
+                            ? <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 50, background: 'rgba(21,15,46,0.06)', color: MUTED }}>Отменена</span>
+                            : isOwner && <Link href={findUrl} style={{ fontSize: 13, color: ACCENT, fontWeight: 600, textDecoration: 'none' }}>Найти исполнителя →</Link>}
+                          {isOwner && !hasActiveBooking && (
+                            <button onClick={() => handleDeleteRole(role.id)} disabled={deletingRoleId === role.id} title="Удалить роль"
+                              style={{ background: 'none', border: 'none', cursor: deletingRoleId === role.id ? 'not-allowed' : 'pointer', color: MUTED, fontSize: 14, padding: 2, lineHeight: 1, opacity: deletingRoleId === role.id ? 0.5 : 1 }}>
+                              🗑
+                            </button>
+                          )}
+                        </span>
                       </div>
 
                       {filledBooking && (

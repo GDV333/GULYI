@@ -179,6 +179,31 @@ export class EventService {
     return this.getById(id, userId)
   }
 
+  // Убрать роль из «Кто нужен». Пока по ней есть незавершённая заявка — нельзя
+  // (сначала отмените бронь); завершённые/отменённые брони просто отвязываются
+  // от роли и остаются в истории — деньги и отзывы не теряются.
+  async removeRole(id: string, userId: string, roleId: string) {
+    const event = await db.query.events.findFirst({ where: eq(events.id, id) })
+    if (!event) throw new Error('Мероприятие не найдено')
+    if (event.clientId !== userId) throw new Error('Нет доступа')
+
+    const role = await db.query.eventRoles.findFirst({ where: eq(eventRoles.id, roleId) })
+    if (!role || role.eventId !== id) throw new Error('Роль не найдена')
+
+    const roleBookings = await db.query.bookings.findMany({ where: eq(bookings.eventRoleId, roleId) })
+    const hasActive = roleBookings.some(b => !['cancelled', 'completed', 'refunded'].includes(b.status))
+    if (hasActive) throw new Error('По этой роли есть активная заявка — сначала отмените её')
+
+    await db.transaction(async (tx) => {
+      if (roleBookings.length > 0) {
+        await tx.update(bookings).set({ eventRoleId: null }).where(eq(bookings.eventRoleId, roleId))
+      }
+      await tx.delete(eventRoles).where(eq(eventRoles.id, roleId))
+    })
+
+    return this.getById(id, userId)
+  }
+
   // Вызывается из BookingService.create — привязывает бронь к существующему
   // мероприятию (если пришёл eventId) либо создаёт новое «на лету».
   async resolveForBooking(clientId: string, dto: ResolveForBookingDto): Promise<{ eventId: string; eventRoleId?: string }> {
