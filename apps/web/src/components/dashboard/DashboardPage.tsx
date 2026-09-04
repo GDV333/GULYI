@@ -34,7 +34,7 @@ interface Booking {
   eventTimeFrom?:string|null; eventTimeTo?:string|null; eventType?:string|null
   guestsCount?:number|null; ageCategory?:string|null; duration?:number|null
   location?:string|null; budget?:string|null; eventId?:string|null
-  profile?:{displayName:string;profileCategories:{isPrimary:boolean;category:{name:string}}[]}
+  profile?:{id:string;displayName:string;avatarUrl?:string|null;profileCategories:{isPrimary:boolean;category:{name:string}}[]}
   client?:{email:string;profile?:{displayName:string}}
 }
 interface FavoriteItem {
@@ -334,9 +334,28 @@ export function DashboardPage() {
               <span style={{color:MUTED,fontSize:14}}>📅 {new Date(selectedBooking.eventDate).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</span>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              {user.role==='client'&&selectedBooking.profile&&(()=>{
+                const p=selectedBooking.profile!
+                const cat=p.profileCategories?.find(pc=>pc.isPrimary)?.category||p.profileCategories?.[0]?.category
+                return (
+                  <Link href={`/catalog/${p.id}`}
+                    style={{display:'flex',alignItems:'center',gap:12,background:'rgba(21,15,46,0.03)',border:`1px solid ${BORDER}`,borderRadius:12,padding:'10px 12px',textDecoration:'none'}}
+                    onMouseEnter={e=>(e.currentTarget as HTMLElement).style.borderColor=`${ACCENT}55`}
+                    onMouseLeave={e=>(e.currentTarget as HTMLElement).style.borderColor=BORDER}>
+                    <span style={{width:40,height:40,borderRadius:'50%',overflow:'hidden',flexShrink:0,background:AVATAR_BG,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:'#FFFFFF'}}>
+                      {p.avatarUrl?<img src={p.avatarUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>:initialOf(p.displayName)}
+                    </span>
+                    <div style={{minWidth:0,flex:1}}>
+                      <p style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:MUTED,marginBottom:2}}>Исполнитель</p>
+                      <p style={{fontWeight:600,color:TEXT,fontSize:14,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.displayName}</p>
+                      {cat&&<p style={{fontSize:12,color:MUTED}}>{cat.name}</p>}
+                    </div>
+                    <span style={{color:ACCENT,fontSize:13,fontWeight:700,flexShrink:0}}>В профиль →</span>
+                  </Link>
+                )
+              })()}
               {[
                 user.role==='vendor'&&selectedBooking.client ? ['Заказчик', selectedBooking.client.profile?.displayName||selectedBooking.client.email] : null,
-                user.role==='client'&&selectedBooking.profile ? ['Исполнитель', selectedBooking.profile.displayName] : null,
                 (selectedBooking.eventTimeFrom||selectedBooking.eventTimeTo) ? ['Время', selectedBooking.eventTimeFrom&&selectedBooking.eventTimeTo?`${selectedBooking.eventTimeFrom} — ${selectedBooking.eventTimeTo}`:selectedBooking.eventTimeFrom||selectedBooking.eventTimeTo] : null,
                 selectedBooking.eventType ? ['Тип мероприятия', selectedBooking.eventType] : null,
                 selectedBooking.guestsCount ? ['Количество гостей', `${selectedBooking.guestsCount} человек`] : null,
