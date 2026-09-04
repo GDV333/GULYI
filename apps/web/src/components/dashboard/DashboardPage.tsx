@@ -64,109 +64,6 @@ const PLATFORMS = [
   { value:'vk',        label:'ВКонтакте', placeholder:'vk.com/id' },
 ]
 
-function VendorCalendar({ bookings, unavailableDates, onSelectBooking }: { bookings:Booking[]; unavailableDates:Set<string>; onSelectBooking:(b:Booking)=>void }) {
-  const today = new Date(); today.setHours(0,0,0,0)
-  const [viewDate, setViewDate] = useState({ year:today.getFullYear(), month:today.getMonth() })
-  const prevMonth = () => setViewDate(v => { const d=new Date(v.year,v.month-1); return {year:d.getFullYear(),month:d.getMonth()} })
-  const nextMonth = () => setViewDate(v => { const d=new Date(v.year,v.month+1); return {year:d.getFullYear(),month:d.getMonth()} })
-  const monthName = new Date(viewDate.year,viewDate.month).toLocaleDateString('ru-RU',{month:'long',year:'numeric'})
-  const daysInMonth = new Date(viewDate.year,viewDate.month+1,0).getDate()
-  const startOffset = (new Date(viewDate.year,viewDate.month,1).getDay()+6)%7
-  const cells: (number|null)[] = []
-  for (let i=0;i<startOffset;i++) cells.push(null)
-  for (let d=1;d<=daysInMonth;d++) cells.push(d)
-
-  const byDate: Record<string,Booking[]> = {}
-  for (const b of bookings) {
-    const d=new Date(b.eventDate)
-    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-    if (!byDate[key]) byDate[key]=[]
-    byDate[key].push(b)
-  }
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
-
-  return (
-    <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:20, overflow:'hidden', boxShadow:'0 4px 24px rgba(21,15,46,0.06)' }}>
-      {/* Header */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', borderBottom:`1px solid ${BORDER}` }}>
-        <button onClick={prevMonth} style={{ width:32, height:32, borderRadius:10, background:'rgba(21,15,46,0.04)', border:`1px solid ${BORDER}`, color:MUTED, cursor:'pointer', fontSize:18 }}>‹</button>
-        <span style={{ fontSize:13, fontWeight:700, color:TEXT, textTransform:'capitalize' }}>{monthName}</span>
-        <button onClick={nextMonth} style={{ width:32, height:32, borderRadius:10, background:'rgba(21,15,46,0.04)', border:`1px solid ${BORDER}`, color:MUTED, cursor:'pointer', fontSize:18 }}>›</button>
-      </div>
-      {/* Days of week */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', textAlign:'center', background:'rgba(21,15,46,0.02)', borderBottom:`1px solid ${BORDER}` }}>
-        {['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d => (
-          <div key={d} style={{ fontSize:10, fontWeight:700, color:MUTED, padding:'8px 0' }}>{d}</div>
-        ))}
-      </div>
-      {/* Cells */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', padding:8, gap:2 }}>
-        {cells.map((day,i) => {
-          if (!day) return <div key={i} />
-          const dateStr=`${viewDate.year}-${String(viewDate.month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`
-          const isPast = new Date(viewDate.year,viewDate.month,day)<today
-          const dayBks = byDate[dateStr]||[]
-          const isToday = dateStr===todayStr
-          const confirmed = dayBks.filter(b=>b.status==='confirmed')
-          const pending = dayBks.filter(b=>b.status==='pending')
-          const hasBks = dayBks.length>0
-          const selfUnavailable = !hasBks && unavailableDates.has(dateStr)
-          const bg = confirmed.length>0?'rgba(52,211,153,0.15)':pending.length>0?'rgba(251,191,36,0.15)':hasBks?'rgba(248,113,113,0.15)':selfUnavailable?'rgba(21,15,46,0.08)':'transparent'
-          const dayColor = confirmed.length>0?'#34D399':pending.length>0?'#FBBF24':hasBks?'#F87171':selfUnavailable?'#6B7280':isToday?ACCENT:isPast?'rgba(21,15,46,0.2)':TEXT
-          return (
-            <button key={i} disabled={!hasBks&&isPast} onClick={()=>hasBks&&onSelectBooking(dayBks[0])}
-              style={{ borderRadius:10, padding:'6px 2px', textAlign:'center', background:bg, border:`1px solid ${isToday?ACCENT:'transparent'}`, cursor:hasBks?'pointer':'default', opacity:(!hasBks&&isPast)?0.35:1 }}>
-              <span style={{ fontSize:13, fontWeight:600, color:dayColor }}>{day}</span>
-              {hasBks && (
-                <div style={{ display:'flex', justifyContent:'center', gap:2, marginTop:2 }}>
-                  {dayBks.slice(0,3).map((b,idx) => (
-                    <div key={idx} style={{ width:4, height:4, borderRadius:'50%', background:STATUS[b.status]?.color||MUTED }} />
-                  ))}
-                </div>
-              )}
-              {selfUnavailable && (
-                <div style={{ width:4, height:4, borderRadius:'50%', background:'#6B7280', margin:'2px auto 0' }} />
-              )}
-            </button>
-          )
-        })}
-      </div>
-      {/* Legend */}
-      <div style={{ padding:'10px 16px', borderTop:`1px solid ${BORDER}`, background:'rgba(21,15,46,0.02)' }}>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:12 }}>
-          {[['#34D399','Подтверждён'],['#FBBF24','Ожидает'],['#F87171','Отменён'],['#6B7280','Вы недоступны']].map(([c,l]) => (
-            <div key={l} style={{ display:'flex', alignItems:'center', gap:6 }}>
-              <div style={{ width:10, height:10, borderRadius:3, background:c+'22', border:`1px solid ${c}66` }} />
-              <span style={{ fontSize:11, color:MUTED }}>{l}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Upcoming */}
-      <div style={{ padding:'12px 16px', borderTop:`1px solid ${BORDER}` }}>
-        <p style={{ fontSize:10, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:MUTED, marginBottom:10 }}>Ближайшие</p>
-        {bookings.filter(b=>new Date(b.eventDate)>=today&&b.status!=='cancelled').sort((a,b)=>new Date(a.eventDate).getTime()-new Date(b.eventDate).getTime()).slice(0,3).map(b => {
-          const s=STATUS[b.status]||STATUS.pending
-          return (
-            <button key={b.id} onClick={()=>onSelectBooking(b)}
-              style={{ width:'100%', textAlign:'left', display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:12, background:'transparent', border:'none', cursor:'pointer', marginBottom:2 }}
-              onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(21,15,46,0.04)'}
-              onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
-              <div style={{ width:32, height:32, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, flexShrink:0, background:s.bg, color:s.color }}>
-                {new Date(b.eventDate).getDate()}
-              </div>
-              <div style={{ minWidth:0 }}>
-                <p style={{ fontSize:13, fontWeight:600, color:TEXT, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.client?.profile?.displayName||b.client?.email||'Клиент'}</p>
-                <p style={{ fontSize:11, color:MUTED, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.eventType||new Date(b.eventDate).toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}</p>
-              </div>
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
 function AvailabilityCalendar({ dates, selectedDate, onSelectDate }: { dates:AvailabilityDate[]; selectedDate:string|null; onSelectDate:(dateStr:string)=>void }) {
   const today = new Date(); today.setHours(0,0,0,0)
   const [viewDate, setViewDate] = useState({ year:today.getFullYear(), month:today.getMonth() })
@@ -272,6 +169,7 @@ export function DashboardPage() {
     const tok=localStorage.getItem('accessToken'); const ud=localStorage.getItem('user')
     if (!tok||!ud) { router.push('/auth/login'); return }
     const u=JSON.parse(ud); setUser(u); setAccountForm(f=>({...f,name:u.name,email:u.email}))
+    if (u.role==='vendor') setActiveTab('anketa')
     apiFetch(`/api/bookings`).then(r=>r.json()).then(d=>setBookings(Array.isArray(d)?d:[])).catch(console.error)
     if (u.role==='vendor') {
       apiFetch(`/api/profile/me`).then(r=>r.json()).then(p=>{
@@ -402,9 +300,8 @@ export function DashboardPage() {
   if (!user) return null
 
   const primaryCat = profile?.profileCategories?.find(pc=>pc.isPrimary)?.category||profile?.profileCategories?.[0]?.category
-  const unavailableDatesSet = new Set(availability.filter(a=>!a.isAvailable).map(a=>a.date))
   const tabs = user.role==='vendor'
-    ? [{key:'bookings',label:'Заявки'},{key:'anketa',label:'Анкета'},{key:'account',label:'Аккаунт'}]
+    ? [{key:'anketa',label:'Анкета'},{key:'account',label:'Аккаунт'}]
     : [{key:'bookings',label:'Мои брони'},{key:'favorites',label:'Избранное'},{key:'account',label:'Аккаунт'}]
   const openAlbum = profile?.albums?.find(a=>a.id===openAlbumId)
   const svcByCat = (profile?.services||[]).reduce((acc,s)=>{if(!acc[s.category])acc[s.category]=[];acc[s.category].push(s);return acc},{} as Record<string,Service[]>)
@@ -548,11 +445,6 @@ export function DashboardPage() {
                 </Card>
               ):(
                 <div style={{display:'flex',gap:20,alignItems:'flex-start',flexWrap:'wrap'}}>
-                  {user.role==='vendor'&&(
-                    <div style={{width:280,flexShrink:0}} className="calendar-col">
-                      <VendorCalendar bookings={bookings} unavailableDates={unavailableDatesSet} onSelectBooking={setSelectedBooking}/>
-                    </div>
-                  )}
                   <div style={{flex:1,minWidth:280,display:'flex',flexDirection:'column',gap:12}}>
                     {bookings.map(booking=>{
                       const s=STATUS[booking.status]||STATUS.pending
@@ -1027,10 +919,6 @@ export function DashboardPage() {
         </div>
       </main>
       <Footer/>
-
-      <style>{`
-        @media (max-width: 640px) { .calendar-col { width: 100% !important; } }
-      `}</style>
     </>
   )
 

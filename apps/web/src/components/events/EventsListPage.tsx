@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { apiFetch } from '@/lib/apiFetch'
+import { VendorBookings } from './VendorBookings'
 
 const BG     = 'linear-gradient(135deg, #F3E9FC 0%, #FCEAF1 45%, #FFF4EA 100%)'
 const CARD   = '#FFFFFF'
@@ -26,6 +27,20 @@ interface EventListItem {
 }
 
 export function EventsListPage() {
+  const [role, setRole] = useState<'client' | 'vendor' | 'admin' | null | undefined>(undefined)
+
+  useEffect(() => {
+    const raw = localStorage.getItem('user')
+    setRole(raw ? (JSON.parse(raw).role ?? null) : null)
+  }, [])
+
+  if (role === undefined) return null
+  // У исполнителя «Мероприятия» — это его заявки: календарь + список в одном месте
+  if (role === 'vendor') return <VendorBookings />
+  return <ClientEvents />
+}
+
+function ClientEvents() {
   const router = useRouter()
   const [events, setEvents] = useState<EventListItem[]>([])
   const [loading, setLoading] = useState(true)
