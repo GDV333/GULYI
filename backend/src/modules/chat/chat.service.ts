@@ -119,4 +119,26 @@ export class ChatService {
 
     return message
   }
+
+  // Удалить своё сообщение (не чужое)
+  async deleteMessage(conversationId: string, messageId: string, userId: string) {
+    const conv = await this.assertParticipant(conversationId, userId)
+    if (!conv) throw new Error('Диалог не найден')
+
+    const message = await db.query.messages.findFirst({ where: eq(messages.id, messageId) })
+    if (!message || message.conversationId !== conversationId) throw new Error('Сообщение не найдено')
+    if (message.senderId !== userId) throw new Error('Можно удалять только свои сообщения')
+
+    await db.delete(messages).where(eq(messages.id, messageId))
+    return { ok: true }
+  }
+
+  // Удалить диалог целиком (для любого из собеседников) — сообщения удалятся каскадом
+  async deleteConversation(conversationId: string, userId: string) {
+    const conv = await this.assertParticipant(conversationId, userId)
+    if (!conv) throw new Error('Диалог не найден')
+
+    await db.delete(conversations).where(eq(conversations.id, conversationId))
+    return { ok: true }
+  }
 }

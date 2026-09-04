@@ -44,6 +44,7 @@ export function MessagesPage() {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  const [menu, setMenu] = useState<{ x: number; y: number; kind: 'msg' | 'conv'; id: string } | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -115,6 +116,38 @@ export function MessagesPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    if (!menu) return
+    const close = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(null) }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [menu])
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!activeId) return
+    setMessages(prev => {
+      const next = prev.filter(m => m.id !== messageId)
+      // синхронизируем превью последнего сообщения в списке диалогов слева
+      const last = next[next.length - 1]
+      setConversations(cs => cs.map(c => c.id === activeId
+        ? { ...c, messages: last ? [{ id: last.id, text: last.text, createdAt: last.createdAt, senderId: last.sender.id }] : [] }
+        : c))
+      return next
+    })
+    try { await apiFetch(`/api/chat/${activeId}/messages/${messageId}`, { method: 'DELETE' }) } catch {}
+  }
+
+  const handleDeleteConversation = async (convId: string) => {
+    if (!window.confirm('Удалить диалог целиком? Переписка исчезнет у обеих сторон.')) return
+    try {
+      const res = await apiFetch(`/api/chat/${convId}`, { method: 'DELETE' })
+      if (res.ok) {
+        setConversations(prev => prev.filter(c => c.id !== convId))
+        if (activeId === convId) { setActiveId(null); setMessages([]) }
+      }
+    } catch {}
+  }
+
   const handleSend = async () => {
     if (!text.trim() || !activeId || sending) return
     setSending(true)
@@ -164,6 +197,7 @@ export function MessagesPage() {
                 const unread = conv.unreadCount || 0
                 return (
                   <button key={conv.id} onClick={() => handleSelectConversation(conv.id)}
+                    onContextMenu={e => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, kind: 'conv', id: conv.id }) }}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '14px 16px',
                       background: active ? 'rgba(124,58,237,0.08)' : 'transparent', border: 'none',
@@ -223,12 +257,15 @@ export function MessagesPage() {
                       const mine = m.sender.id === myId
                       return (
                         <div key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '70%' }}>
-                          <div style={{
-                            background: mine ? ACCENT : '#F3EEFB', color: mine ? '#FFFFFF' : TEXT,
-                            padding: '10px 14px', borderRadius: 14,
-                            borderBottomRightRadius: mine ? 4 : 14, borderBottomLeftRadius: mine ? 14 : 4,
-                            fontSize: 14, lineHeight: 1.5, wordBreak: 'break-word',
-                          }}>
+                          <div
+                            onContextMenu={e => { if (!mine) return; e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, kind: 'msg', id: m.id }) }}
+                            style={{
+                              background: mine ? ACCENT : '#F3EEFB', color: mine ? '#FFFFFF' : TEXT,
+                              padding: '10px 14px', borderRadius: 14,
+                              borderBottomRightRadius: mine ? 4 : 14, borderBottomLeftRadius: mine ? 14 : 4,
+                              fontSize: 14, lineHeight: 1.5, wordBreak: 'break-word',
+                              cursor: mine ? 'context-menu' : 'default',
+                            }}>
                             {m.text}
                           </div>
                           <p style={{ fontSize: 11, color: MUTED, marginTop: 3, textAlign: mine ? 'right' : 'left' }}>
@@ -256,6 +293,27 @@ export function MessagesPage() {
           </div>
         </div>
       </main>
+
+      {menu && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 199 }}
+            onClick={() => setMenu(null)}
+            onContextMenu={e => { e.preventDefault(); setMenu(null) }} />
+          <div style={{
+            position: 'fixed', top: menu.y, left: menu.x, zIndex: 200, transform: 'translate(-4px, 4px)',
+            background: '#FFFFFF', border: `1px solid ${BORDER}`, borderRadius: 12, padding: 4, minWidth: 190,
+            boxShadow: '0 12px 32px rgba(21,15,46,0.2)',
+          }}>
+            <button
+              onClick={() => { if (menu.kind === 'msg') handleDeleteMessage(menu.id); else handleDeleteConversation(menu.id); setMenu(null) }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: 'none', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#DC2626', fontSize: 13.5, fontWeight: 600 }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(220,38,38,0.08)'}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'none'}>
+              🗑 {menu.kind === 'msg' ? 'Удалить сообщение' : 'Удалить диалог'}
+            </button>
+          </div>
+        </>
+      )}
     </>
   )
 }

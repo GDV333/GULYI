@@ -34,9 +34,10 @@ const EVENT_STATUS: Record<string, { label: string; color: string; bg: string }>
 
 interface Category { slug: string; name: string; icon: string | null }
 interface EventRole { id: string; notes: string | null; status: 'searching' | 'filled' | 'cancelled'; category: Category }
-interface BookingProfile { id: string; displayName: string; city: string; avatarUrl: string | null; priceFrom: string | null; priceUnit: string | null }
+interface BookingProfile { id: string; userId?: string; displayName: string; city: string; avatarUrl: string | null; priceFrom: string | null; priceUnit: string | null }
 interface EventBooking { id: string; eventRoleId: string | null; status: string; total: string; createdAt: string; profile: BookingProfile }
-interface ConversationMember { user: { id: string; email: string } }
+interface ChatUser { id: string; email: string; profile?: { displayName: string; avatarUrl?: string | null } | null }
+interface ConversationMember { user: ChatUser }
 interface EventDetail {
   id: string; clientId: string; eventType: string | null; eventDate: string
   eventTimeFrom: string | null; eventTimeTo: string | null; city: string | null; location: string | null
@@ -45,9 +46,11 @@ interface EventDetail {
   roles: EventRole[]; bookings: EventBooking[]
   conversation: { id: string; members: ConversationMember[] } | null
 }
-interface ChatMessage { id: string; text: string; createdAt: string; sender: { id: string; email: string } }
+interface ChatMessage { id: string; text: string; createdAt: string; sender: ChatUser }
 
-const initialOf = (email?: string) => (email?.trim()?.[0] || '?').toUpperCase()
+const initialOf = (name?: string) => (name?.trim()?.[0] || '?').toUpperCase()
+// Имя вместо почты; для заказчика — фиксированная подпись, как везде в приложении
+const nameOf = (u: ChatUser, clientId: string) => u.id === clientId ? 'Заказчик' : (u.profile?.displayName || u.email)
 
 function Label({ children }: { children: React.ReactNode }) {
   return <label style={{ display:'block', color:MUTED, fontSize:11, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase' as const, marginBottom:8 }}>{children}</label>
@@ -206,6 +209,21 @@ export function EventPage({ id }: { id: string }) {
   const cartBookings = event.bookings.filter(b => b.status === 'confirmed' || b.status === 'paid')
   const cartTotal = cartBookings.reduce((sum, b) => sum + Number(b.total), 0)
   const canCheckout = isOwner && event.status === 'active' && cartBookings.some(b => b.status === 'confirmed')
+
+  // Личный чат с конкретным участником — ищем бронь, которая их связывает.
+  // Заказчик → бронь этого исполнителя; исполнитель → свою собственную бронь на это мероприятие.
+  const bookingIdWith = (memberUserId: string): string | null => {
+    if (!myId || memberUserId === myId) return null
+    if (memberUserId === event.clientId) {
+      const mine = event.bookings.find(b => b.profile?.userId === myId && b.status !== 'cancelled')
+      return mine ? mine.id : null
+    }
+    if (isOwner) {
+      const b = event.bookings.find(b => b.profile?.userId === memberUserId && b.status !== 'cancelled')
+      return b ? b.id : null
+    }
+    return null
+  }
 
   return (
     <>
@@ -389,12 +407,25 @@ export function EventPage({ id }: { id: string }) {
               <Card>
                 <h2 style={{ fontWeight: 700, fontSize: 16, color: TEXT, marginBottom: 12 }}>Общий чат</h2>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-                  {event.conversation?.members.map(m => (
-                    <span key={m.user.id} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(21,15,46,0.04)', borderRadius: 50, padding: '4px 10px 4px 4px', fontSize: 12, color: MUTED }}>
-                      <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'linear-gradient(135deg, #8B3DFF 0%, #E93D8A 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#FFFFFF' }}>{initialOf(m.user.email)}</span>
-                      {m.user.id === event.clientId ? 'Заказчик' : m.user.email}
-                    </span>
-                  ))}
+                  {event.conversation?.members.map(m => {
+                    const name = nameOf(m.user, event.clientId)
+                    const chatId = bookingIdWith(m.user.id)
+                    const chipStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(21,15,46,0.04)', borderRadius: 50, padding: '4px 10px 4px 4px', fontSize: 12, color: MUTED, textDecoration: 'none', border: 'none', cursor: chatId ? 'pointer' : 'default', font: 'inherit' }
+                    const avatar = (
+                      <span style={{ width: 18, height: 18, borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #8B3DFF 0%, #E93D8A 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#FFFFFF', flexShrink: 0 }}>
+                        {m.user.profile?.avatarUrl ? <img src={m.user.profile.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initialOf(name)}
+                      </span>
+                    )
+                    return chatId ? (
+                      <Link key={m.user.id} href={`/messages?booking=${chatId}`} title="Написать лично" style={chipStyle}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = ACCENT}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = MUTED}>
+                        {avatar}{name}
+                      </Link>
+                    ) : (
+                      <span key={m.user.id} style={chipStyle}>{avatar}{name}</span>
+                    )
+                  })}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 320, overflowY: 'auto', marginBottom: 12, padding: '4px 2px' }}>
@@ -403,7 +434,7 @@ export function EventPage({ id }: { id: string }) {
                     const mine = m.sender.id === myId
                     return (
                       <div key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
-                        {!mine && <p style={{ fontSize: 11, color: MUTED, marginBottom: 2, marginLeft: 4 }}>{m.sender.id === event.clientId ? 'Заказчик' : m.sender.email}</p>}
+                        {!mine && <p style={{ fontSize: 11, color: MUTED, marginBottom: 2, marginLeft: 4 }}>{nameOf(m.sender, event.clientId)}</p>}
                         <div style={{ background: mine ? ACCENT : 'rgba(21,15,46,0.05)', color: mine ? '#FFFFFF' : TEXT, borderRadius: 14, padding: '9px 13px', fontSize: 14, lineHeight: 1.5 }}>
                           {m.text}
                         </div>

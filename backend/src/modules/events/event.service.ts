@@ -106,13 +106,22 @@ export class EventService {
         bookings: {
           with: {
             profile: {
-              columns: { id: true, displayName: true, city: true, avatarUrl: true, priceFrom: true, priceUnit: true },
+              columns: { id: true, userId: true, displayName: true, city: true, avatarUrl: true, priceFrom: true, priceUnit: true },
             },
           },
           orderBy: (b) => [b.createdAt],
         },
         conversation: {
-          with: { members: { with: { user: { columns: { id: true, email: true } } } } },
+          with: {
+            members: {
+              with: {
+                user: {
+                  columns: { id: true, email: true },
+                  with: { profile: { columns: { displayName: true, avatarUrl: true } } },
+                },
+              },
+            },
+          },
         },
       },
     })
@@ -283,7 +292,12 @@ export class EventService {
     return db.query.eventMessages.findMany({
       where: eq(eventMessages.conversationId, conversation.id),
       orderBy: (m) => [m.createdAt],
-      with: { sender: { columns: { id: true, email: true } } },
+      with: {
+        sender: {
+          columns: { id: true, email: true },
+          with: { profile: { columns: { displayName: true } } },
+        },
+      },
     })
   }
 

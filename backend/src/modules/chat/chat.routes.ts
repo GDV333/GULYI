@@ -62,4 +62,28 @@ export async function chatRoutes(app: FastifyInstance) {
       reply.status(404).send({ error: err.message })
     }
   })
+
+  // DELETE /api/chat/:id/messages/:messageId — удалить своё сообщение
+  app.delete('/:id/messages/:messageId', async (request, reply) => {
+    const { id: userId } = request.user as { id: string }
+    const { id, messageId } = request.params as { id: string; messageId: string }
+    try {
+      await svc.deleteMessage(id, messageId, userId)
+      reply.status(204).send()
+    } catch (err: any) {
+      reply.status(403).send({ error: err.message })
+    }
+  })
+
+  // DELETE /api/chat/:id — удалить диалог целиком (для любого из собеседников)
+  app.delete('/:id', async (request, reply) => {
+    const { id: userId } = request.user as { id: string }
+    const { id } = request.params as { id: string }
+    try {
+      await svc.deleteConversation(id, userId)
+      reply.status(204).send()
+    } catch (err: any) {
+      reply.status(403).send({ error: err.message })
+    }
+  })
 }
