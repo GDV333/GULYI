@@ -28,10 +28,10 @@ export function CategoryChips() {
   return (
     <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 clamp(16px,4vw,40px) 8px' }}>
       <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-        {cats.map(c => {
+        {cats.map((c, i) => {
           const on = active === c.label
           return (
-            <button key={c.label} onClick={() => handleClick(c)}
+            <button key={c.label} onClick={() => handleClick(c)} className="gulyay-pop"
               onMouseEnter={e => { if (!on) { e.currentTarget.style.borderColor = 'rgba(124,58,237,0.4)'; e.currentTarget.style.color = ACCENT } }}
               onMouseLeave={e => { if (!on) { e.currentTarget.style.borderColor = 'rgba(21,15,46,0.1)'; e.currentTarget.style.color = 'rgba(21,15,46,0.6)' } }}
               style={{
@@ -41,6 +41,7 @@ export function CategoryChips() {
                 color: on ? ACCENT : 'rgba(21,15,46,0.6)',
                 fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                 transition: 'border-color .18s, color .18s, background .18s',
+                animationDelay: `${0.15 + i * 0.045}s`,
               }}>
               <span style={{ fontSize: 16 }}>{c.icon}</span>
               {c.label}

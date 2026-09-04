@@ -79,11 +79,11 @@ export function ListingsGrid() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px,1fr))', gap: 16 }}>
-          {items.map(item => {
+          {items.map((item, i) => {
             const cat = item.profileCategories?.find(p=>p.isPrimary)?.category || item.profileCategories?.[0]?.category
             const emoji = CAT_EMOJI[cat?.slug||''] || '✦'
             return (
-              <Link key={item.id} href={`/catalog/${item.id}`} style={{ textDecoration: 'none', display: 'block', background: '#FFFFFF', borderRadius: 18, border: `1px solid ${BORDER}`, overflow: 'hidden', transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(21,15,46,0.05)' }}
+              <Link key={item.id} href={`/catalog/${item.id}`} className="gulyay-pop" style={{ textDecoration: 'none', display: 'block', background: '#FFFFFF', borderRadius: 18, border: `1px solid ${BORDER}`, overflow: 'hidden', transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(21,15,46,0.05)', animationDelay: `${i * 0.06}s` }}
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor='rgba(124,58,237,0.35)'; el.style.transform='translateY(-2px)'; el.style.boxShadow='0 8px 24px rgba(21,15,46,0.1)' }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor=BORDER; el.style.transform='none'; el.style.boxShadow='0 2px 12px rgba(21,15,46,0.05)' }}>
                 <div style={{ height: 176, background: 'rgba(21,15,46,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>

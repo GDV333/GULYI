@@ -45,7 +45,6 @@ function RotatingWord() {
   return (
     <span style={{
       display: 'inline-block',
-      position: 'relative',
       minWidth: '5.4ch',
       color: ACCENT,
       transition: 'opacity 0.22s ease, transform 0.22s ease',
@@ -53,10 +52,6 @@ function RotatingWord() {
       transform: visible ? 'translateY(0)' : 'translateY(-14px)',
     }}>
       {WORDS[idx]}
-      <span style={{
-        position: 'absolute', left: 0, right: 6, bottom: '0.12em', height: 3, borderRadius: 3,
-        background: ACCENT_GRADIENT, opacity: 0.9,
-      }} />
     </span>
   )
 }
@@ -90,9 +85,7 @@ export function HeroSection() {
   }
 
   return (
-    <section style={{ position: 'relative', maxWidth: 1280, margin: '0 auto', padding: 'clamp(22px,3.5vw,44px) clamp(16px,4vw,40px) clamp(20px,3vw,32px)' }}>
-
-      <div className="gulyay-aurora" aria-hidden="true" />
+    <section className="gulyay-stagger" style={{ position: 'relative', maxWidth: 1280, margin: '0 auto', padding: 'clamp(22px,3.5vw,44px) clamp(16px,4vw,40px) clamp(20px,3vw,32px)' }}>
 
       {/* Badge */}
       <div style={{
@@ -289,13 +282,14 @@ export function HeroSection() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex' }}>
           {['#8B3DFF', '#C13DE9', '#E93D8A', '#FF7A45'].map((c, idx) => (
-            <div key={c} style={{
+            <div key={c} className="gulyay-pop-in" style={{
               width: 34, height: 34, borderRadius: '50%',
               background: c,
               border: '2px solid #FFFFFF',
               marginLeft: idx === 0 ? 0 : -10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 12, fontWeight: 700, color: '#FFFFFF',
+              animationDelay: `${0.5 + idx * 0.09}s`,
             }}>
               {['А', 'М', 'Е', 'Д'][idx]}
             </div>
